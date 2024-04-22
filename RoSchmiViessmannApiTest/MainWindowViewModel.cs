@@ -103,9 +103,6 @@ namespace RoSchmiViessmannApiTest
 
             using (var client = new HttpClient())
             {
-
-                //using (var requestMessage = new HttpRequestMessage(HttpMethod.Post, encodedUrl))
-
                 StringContent content = new  StringContent(queryString, Encoding.UTF8, "application/x-www-form-urlencoded") ;
 
                 try
@@ -124,16 +121,7 @@ namespace RoSchmiViessmannApiTest
 
                     string[] contentArray = responseContent.Split(new char[] { '\"' });
 
-                    if (contentArray[1] == "access_token")
-                            {
-                        AuthenticationToken = contentArray[3];
-                    }
-                    else 
-                    {
-                        AuthenticationToken = string.Empty;
-                    };
-
-                    int dummy35 = 1;
+                    AuthenticationToken = contentArray[1] == "access_token" ? contentArray[3] : string.Empty;              
                 }
                 catch (Exception e)
                 {
