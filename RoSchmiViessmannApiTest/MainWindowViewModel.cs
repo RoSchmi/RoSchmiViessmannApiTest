@@ -305,9 +305,10 @@ namespace RoSchmiViessmannApiTest
         private string requestUrl;
 
         private string authenticationCode;
-
+ 
         private string authenticationToken;
 
+        
         
         private string client_id = ""; 
 
