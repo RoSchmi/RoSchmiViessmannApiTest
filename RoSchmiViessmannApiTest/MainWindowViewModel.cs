@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System.Text;
+using System.Text.Json;
 using System.Windows.Input;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
@@ -15,28 +16,33 @@ namespace RoSchmiViessmannApiTest
         public MainWindowViewModel()
         {           
             Get_Authorization_Clicked_Command = new AsyncRelayCommand(GetAuthorizationResponse);
-            Get_Authorization_Token_Clicked_Command = new AsyncRelayCommand(GetTokenResponse);
+            Get_Access_Token_Clicked_Command = new AsyncRelayCommand(GetTokenResponse);        
             Copy_Url_to_Clipboard_Clicked_Command = new RelayCommand(CopyUrlToClipboard);
-            Copy_Token_to_Clipboard_Clicked_Command = new RelayCommand(CopyTokenToClipboard);
+            Copy_Access_Token_to_Clipboard_Clicked_Command = new RelayCommand(CopyAccessTokenToClipboard);
+            Copy_Refresh_Token_to_Clipboard_Clicked_Command = new RelayCommand(CopyRefreshTokenToClipboard);
             Create_New_Codeverifier_Clicked_Command = new RelayCommand(CreateNewCodeVerifier);
         }
 
         public IAsyncRelayCommand Get_Authorization_Clicked_Command { get; }
-        public IAsyncRelayCommand Get_Authorization_Token_Clicked_Command { get; }
+        public IAsyncRelayCommand Get_Access_Token_Clicked_Command { get; }   
         public ICommand Copy_Url_to_Clipboard_Clicked_Command { set; get; }
-        public ICommand Copy_Token_to_Clipboard_Clicked_Command { set; get; }
+        public ICommand Copy_Access_Token_to_Clipboard_Clicked_Command { set; get; }
+        public ICommand Copy_Refresh_Token_to_Clipboard_Clicked_Command { set; get; }
         public ICommand Create_New_Codeverifier_Clicked_Command { set; get; }
 
 
         private void CreateNewCodeVerifier() => Code_verifier = randomCodeVerifier(45);
         private void CopyUrlToClipboard() => Clipboard.SetText(RequestUrl);
-        private void CopyTokenToClipboard() => Clipboard.SetText(AuthenticationToken);
+        private void CopyAccessTokenToClipboard() => Clipboard.SetText(AccessToken);
 
+        private void CopyRefreshTokenToClipboard() => Clipboard.SetText(RefreshToken);
 
         #region Task<string?> GetAuthorizationResponse()
         private async Task<string?> GetAuthorizationResponse()
         {
+           
             AuthenticationCode = "";
+            
             byte[] hashBytes;
             using (SHA256 mySHA256 = SHA256.Create())
             {
@@ -49,7 +55,7 @@ namespace RoSchmiViessmannApiTest
             // Create Query-String with parameters
             string queryString = $"client_id={Uri.EscapeDataString(Client_id)}" +
                 $"&redirect_uri={Uri.EscapeDataString(redirect_uri)}" +
-                $"&scope={Uri.EscapeDataString(scope)}" +
+                $"&scope={Uri.EscapeDataString(AddRefreshToken ? scope_IoT_User_offline_access : scope_IoT_User)}" +
                 $"&response_type={Uri.EscapeDataString(response_type)}" +
                 $"&code_challenge_method={Uri.EscapeDataString(code_challenge_method)}" +
                 $"&code_challenge={code_challenge}";
@@ -83,6 +89,8 @@ namespace RoSchmiViessmannApiTest
             HttpResponseMessage? responseMessage = null;
             string? responseContent = null;
 
+            ViApiToken? viApiToken;
+
             using (var client = new HttpClient())
             {
                 StringContent content = new  StringContent(sendContentString, Encoding.UTF8, "application/x-www-form-urlencoded") ;
@@ -101,9 +109,11 @@ namespace RoSchmiViessmannApiTest
                     responseMessage =  await client.SendAsync(requestMessage);
                     responseContent = await responseMessage.Content.ReadAsStringAsync();
 
-                    string[] contentArray = responseContent.Split(new char[] { '\"' });
+                    viApiToken = JsonSerializer.Deserialize<ViApiToken>(responseContent);
 
-                    AuthenticationToken = contentArray[1] == "access_token" ? contentArray[3] : string.Empty;              
+                    AccessToken = viApiToken != null ? viApiToken.access_token : string.Empty;
+
+                    RefreshToken = viApiToken != null ? viApiToken.refresh_token != null ? viApiToken.refresh_token : string.Empty : string.Empty;
                 }
                 catch (Exception e)
                 {
@@ -137,7 +147,10 @@ namespace RoSchmiViessmannApiTest
         private string? authenticationCode;
 
         [ObservableProperty]
-        private string? authenticationToken;
+        private string? accessToken;
+
+        [ObservableProperty]
+        private string? refreshToken;
 
         [ObservableProperty]
         private string client_id = "";
@@ -145,11 +158,14 @@ namespace RoSchmiViessmannApiTest
         [ObservableProperty]
         private string code_verifier = randomCodeVerifier(43); // between 43 and 128 Char
 
+        [ObservableProperty]
+        private bool addRefreshToken = false;
 
         private const string authorizeBaseUri = "https://iam.viessmann.com/idp/v3/authorize";
         private const string tokenBaseUri = "https://iam.viessmann.com/idp/v3/token";           
         private const string redirect_uri = "http://localhost:4200/";
-        private const string scope = "IoT User";
+        private const string scope_IoT_User = "IoT User";
+        private const string scope_IoT_User_offline_access = "IoT User offline_access";
         private const string response_type = "code";
         private const string code_challenge_method = "S256";
         private const string grant_type = "authorization_code";
