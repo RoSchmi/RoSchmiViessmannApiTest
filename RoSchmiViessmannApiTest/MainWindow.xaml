@@ -9,7 +9,7 @@
         Title="Token Generator for Viessmann API"  Height="600" Width="800">
     <Grid Margin="0,0,0,0">
         <Button Content="Copy Url to Clipboard" Command="{Binding Copy_Url_to_Clipboard_Clicked_Command}" HorizontalAlignment="Left" Margin="451,82,0,0" VerticalAlignment="Top" Width="208"/>
-        <TextBox  HorizontalAlignment="Left" Margin="20,46,0,0" Text="{Binding Client_id}" TextWrapping="Wrap" VerticalAlignment="Top" Width="288" Height="21"/>
+        <TextBox  HorizontalAlignment="Left" Margin="20,46,0,0" Text="{Binding Client_id}" TextWrapping="Wrap" Background="Yellow" VerticalAlignment="Top" Width="288" Height="21"/>
         <TextBox  HorizontalAlignment="Left" Margin="336,46,0,0" Text="{Binding Code_verifier}" TextWrapping="Wrap" VerticalAlignment="Top" Width="438" Height="21"/>
 
         <TextBox  HorizontalAlignment="Left" Margin="20,107,0,0" Text="{Binding RequestUrl}" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" Width="748" Height="65"/>
