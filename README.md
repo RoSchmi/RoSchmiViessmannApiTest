@@ -1,6 +1,6 @@
 RoSchmiViessmannApiTest
 
-This is a tool to create Access Tokens, which are needed to read data from the Viessmann Cloud.
+This is a tool to create Access Tokens and get Sensor-Values, via the Viessmann Cloud API.
 
 How to use:
 1) Enter the client_id in the text box in the left upper corner
@@ -13,3 +13,5 @@ How to use:
 8) Copy and paste the "Code" in the textbox of this App
 9) Click "Get Token(s)" (within 20 sec after step 4)
 10) Copy the token to the Clipboard
+
+When an access token is created, sensor-values from the Cloud can be read.
