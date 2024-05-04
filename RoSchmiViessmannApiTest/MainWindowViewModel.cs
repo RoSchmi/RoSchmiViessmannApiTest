@@ -8,7 +8,6 @@ using System.Security.Cryptography;
 using System.Net.Http;
 using System.Windows;
 
-
 namespace RoSchmiViessmannApiTest
 {
     internal  sealed partial class MainWindowViewModel : ObservableObject
@@ -21,10 +20,19 @@ namespace RoSchmiViessmannApiTest
             Copy_Access_Token_to_Clipboard_Clicked_Command = new RelayCommand(CopyAccessTokenToClipboard);
             Copy_Refresh_Token_to_Clipboard_Clicked_Command = new RelayCommand(CopyRefreshTokenToClipboard);
             Create_New_Codeverifier_Clicked_Command = new RelayCommand(CreateNewCodeVerifier);
+            Get_Identity_Clicked_Command = new AsyncRelayCommand(GetIdentityResponse);
+            Get_Equipment_Clicked_Command = new AsyncRelayCommand(GetEquipmentResponse);
+            Get_Features_Clicked_Command = new AsyncRelayCommand(GetFeaturesResponse);  
         }
 
         public IAsyncRelayCommand Get_Authorization_Clicked_Command { get; }
-        public IAsyncRelayCommand Get_Access_Token_Clicked_Command { get; }   
+        public IAsyncRelayCommand Get_Access_Token_Clicked_Command { get; }
+        public IAsyncRelayCommand Get_Identity_Clicked_Command { get; }
+        public IAsyncRelayCommand Get_Equipment_Clicked_Command { get; }
+
+        public IAsyncRelayCommand Get_Features_Clicked_Command { get; }
+        
+
         public ICommand Copy_Url_to_Clipboard_Clicked_Command { set; get; }
         public ICommand Copy_Access_Token_to_Clipboard_Clicked_Command { set; get; }
         public ICommand Copy_Refresh_Token_to_Clipboard_Clicked_Command { set; get; }
@@ -75,7 +83,7 @@ namespace RoSchmiViessmannApiTest
 
         #endregion
 
-        #region GetTokenResponse()
+        #region Task<string?> GetTokenResponse()
         private async Task<string?> GetTokenResponse()
         {
             // Create Content-String for POST request
@@ -84,7 +92,7 @@ namespace RoSchmiViessmannApiTest
                 $"&grant_type={Uri.EscapeDataString(grant_type)}" +
                 $"&code_verifier={Uri.EscapeDataString(Code_verifier)}" +
                 $"&code={Uri.EscapeDataString(AuthenticationCode)}";
-  
+
             string encodedUrl = $"{tokenBaseUri}";
             HttpResponseMessage? responseMessage = null;
             string? responseContent = null;
@@ -93,7 +101,7 @@ namespace RoSchmiViessmannApiTest
 
             using (var client = new HttpClient())
             {
-                StringContent content = new  StringContent(sendContentString, Encoding.UTF8, "application/x-www-form-urlencoded") ;
+                StringContent content = new StringContent(sendContentString, Encoding.UTF8, "application/x-www-form-urlencoded");
 
                 try
                 {
@@ -104,9 +112,9 @@ namespace RoSchmiViessmannApiTest
                             } },
                         RequestUri = new Uri(tokenBaseUri),
                         Content = content
-                    };           
+                    };
 
-                    responseMessage =  await client.SendAsync(requestMessage);
+                    responseMessage = await client.SendAsync(requestMessage);
                     responseContent = await responseMessage.Content.ReadAsStringAsync();
 
                     viApiToken = JsonSerializer.Deserialize<ViApiToken>(responseContent);
@@ -123,6 +131,180 @@ namespace RoSchmiViessmannApiTest
             return responseContent;
         }
         #endregion
+
+        #region Task<string?> GetIdentityResponse()
+        private async Task<string?> GetIdentityResponse()
+        {
+            // Create Query-String with parameters
+            string queryString = $"sections=identity"; 
+
+            string encodedUrl = $"{userBaseUri}?{queryString}";
+            HttpResponseMessage? responseMessage = null;
+            string? responseContent = null;
+
+            UserIdentity? userIdentity; // = new Installations();
+
+            using (var client = new HttpClient())
+            {
+                string authorizationHeader = $"Bearer {AccessToken}";
+                try
+                {
+                    var requestMessage = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Get,
+                        Headers = { { "Authorization", authorizationHeader
+                            } },
+                        RequestUri = new Uri(encodedUrl),            
+                    };
+
+                    responseMessage = await client.SendAsync(requestMessage);
+                    responseContent = await responseMessage.Content.ReadAsStringAsync();
+
+                    userIdentity = JsonSerializer.Deserialize<UserIdentity>(responseContent);
+
+                    Identity = userIdentity != null ?  $"{userIdentity.name.firstName} {userIdentity.name.familyName}" : "";
+                    
+                    
+                    int dummy0 = 1;
+                }
+                catch (Exception e)
+                {
+                    string? theExceptionMessage = e.Message;
+                };
+            }
+            return responseContent;
+        }
+
+        #endregion
+
+        #region Task<string?> GetEquipmentResponse()
+        private async Task<string?> GetEquipmentResponse()
+        {
+
+            // Create Query-String with parameters
+            string queryString = $"includeGateways=true";
+            
+            string addendum = $"equipment/installations";
+
+            string completeUrl = $"{iotBaseUri}{addendum}?{queryString}";
+            HttpResponseMessage? responseMessage = null;
+            string? responseContent = null;
+
+            Installations? installations = new Installations();
+
+            using (var client = new HttpClient())
+            {
+                string authorizationHeader = $"Bearer {AccessToken}";
+                try
+                {
+                    var requestMessage = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Get,
+                        Headers = { { "Authorization", authorizationHeader
+                            } },
+                        RequestUri = new Uri(completeUrl),
+                    };
+
+                    responseMessage = await client.SendAsync(requestMessage);
+                    responseContent = await responseMessage.Content.ReadAsStringAsync();
+
+
+                    installations = JsonSerializer.Deserialize<Installations>(responseContent);
+
+
+                    string? cursorNext = installations == null ? null : installations.cursor.next;
+
+                    int? theId = installations.data[0].id;
+
+                    InstallationId = theId == null ? "" : theId.ToString();
+
+                    GatewaySerial = installations.data[0].gateways[0].serial;
+
+                    DeviceId = installations.data[0].gateways[0].devices[0].id.ToString();
+
+                    string? theDescription = installations.data[0].description;
+
+                    string? addressCity = installations.data[0].address.city;
+
+                    string? addressStreet = installations.data[0].address.street;
+
+                }
+                catch (Exception e)
+                {
+                    string? theExceptionMessage = e.Message;
+                };
+            }
+
+            return responseContent;
+        }
+        #endregion
+
+        #region Task<string?> GetFeaturestResponse()
+        private async Task<string?> GetFeaturesResponse()
+        {
+            if (string.IsNullOrEmpty(InstallationId))
+            {
+                await GetEquipmentResponse();
+            }
+
+            string addendum = $"features/installations/{InstallationId}/gateways/{GatewaySerial}/devices/{DeviceId}/features";
+            string completeUrl = $"{iotBaseUri}{addendum}";
+            HttpResponseMessage? responseMessage = null;
+            string? responseContent = null;
+
+            Features? features = new Features();
+
+            using (var client = new HttpClient())
+            {
+                string authorizationHeader = $"Bearer {AccessToken}";
+                try
+                {
+                    var requestMessage = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Get,
+                        Headers = { { "Authorization", authorizationHeader
+                            } },
+                        RequestUri = new Uri(completeUrl),
+                    };
+
+                    responseMessage = await client.SendAsync(requestMessage);
+                    responseContent = await responseMessage.Content.ReadAsStringAsync();
+
+                    features = JsonSerializer.Deserialize<Features>(responseContent);
+
+                    DateTime localDateTime = DateTime.MinValue;
+
+                    if (features != null) 
+                    { 
+                        localDateTime = ((DateTime)features.data[3].timestamp).ToLocalTime();                   
+                        TimeTempMain = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
+                        TemperatureMain = features.data[3].properties.value.value.ToString();
+
+                        localDateTime = ((DateTime)features.data[95].timestamp).ToLocalTime();
+                        TimeTempOutside = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
+                        TemperatureOutside = features.data[95].properties.value.value.ToString();
+
+                        localDateTime = ((DateTime)features.data[91].timestamp).ToLocalTime();
+                        TimeTempOutlet = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
+                        TemperatureOutlet = features.data[91].properties.value.value.ToString();
+
+                        localDateTime = ((DateTime)features.data[77].timestamp).ToLocalTime();
+                        TimeTempSupply = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
+                        TemperatureSupply = features.data[77].properties.value.value.ToString();
+                    }
+                }
+                catch (Exception e)
+                {
+                    string? theExceptionMessage = e.Message;
+                };
+            }
+
+            return responseContent;
+        }
+        #endregion
+
+
+        
  
         private static string randomCodeVerifier(int length)
         {
@@ -161,8 +343,49 @@ namespace RoSchmiViessmannApiTest
         [ObservableProperty]
         private bool addRefreshToken = false;
 
+        [ObservableProperty]
+        private string identity = "";
+
+        [ObservableProperty]
+        private string installationId = "";
+
+        [ObservableProperty]
+        private string gatewaySerial = "";
+
+        [ObservableProperty]
+        private string deviceId = "";
+
+        [ObservableProperty]
+        private string timeTempMain = "";
+
+        [ObservableProperty]
+        private string temperatureMain = "";
+
+        [ObservableProperty]
+        private string timeTempOutside = "";
+
+        [ObservableProperty]
+        private string temperatureOutside = "";
+
+        [ObservableProperty]
+        private string timeTempOutlet = "";
+
+        [ObservableProperty]
+        private string temperatureOutlet = "";
+
+        [ObservableProperty]
+        private string timeTempSupply = "";
+
+        [ObservableProperty]
+        private string temperatureSupply = "";
+
         private const string authorizeBaseUri = "https://iam.viessmann.com/idp/v3/authorize";
-        private const string tokenBaseUri = "https://iam.viessmann.com/idp/v3/token";           
+        private const string tokenBaseUri = "https://iam.viessmann.com/idp/v3/token";
+
+        private const string userBaseUri = "https://api.viessmann.com/users/v1/users/me";
+
+        private const string iotBaseUri = "https://api.viessmann.com/iot/v1/";
+
         private const string redirect_uri = "http://localhost:4200/";
         private const string scope_IoT_User = "IoT User";
         private const string scope_IoT_User_offline_access = "IoT User offline_access";

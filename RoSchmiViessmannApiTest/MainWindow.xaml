@@ -6,14 +6,14 @@
         xmlns:local="clr-namespace:RoSchmiViessmannApiTest"
         x:ClassModifier="internal"
         mc:Ignorable="d"
-        Title="Token Generator for Viessmann API"  Height="600" Width="800">
+        Title="Token Generator and Test-Tool for Viessmann API"  Height="800" Width="1100">
     <Grid Margin="0,0,0,0">
         <Button Content="Copy Url to Clipboard" Command="{Binding Copy_Url_to_Clipboard_Clicked_Command}" HorizontalAlignment="Left" Margin="451,82,0,0" VerticalAlignment="Top" Width="208"/>
         <TextBox  HorizontalAlignment="Left" Margin="20,46,0,0" Text="{Binding Client_id}" TextWrapping="Wrap" Background="Yellow" VerticalAlignment="Top" Width="288" Height="21"/>
         <TextBox  HorizontalAlignment="Left" Margin="336,46,0,0" Text="{Binding Code_verifier}" TextWrapping="Wrap" VerticalAlignment="Top" Width="438" Height="21"/>
 
         <TextBox  HorizontalAlignment="Left" Margin="20,107,0,0" Text="{Binding RequestUrl}" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" Width="748" Height="65"/>
-        <TextBox  HorizontalAlignment="Center" Margin="0,252,0,0" Text="{Binding AuthenticationCode}" TextWrapping="Wrap" VerticalAlignment="Top" Width="748" Height="26"/>
+        <TextBox  HorizontalAlignment="Left" Margin="26,252,0,0" Text="{Binding AuthenticationCode}" TextWrapping="Wrap" VerticalAlignment="Top" Width="748" Height="26"/>
         <TextBox  HorizontalAlignment="Left" Margin="30,375,0,0" Text="{Binding AccessToken}" TextWrapping="Wrap" VerticalAlignment="Top" IsReadOnly="True" Width="748" Height="108"/>
         <Button Content="Get Token(s)" Command="{Binding Get_Access_Token_Clicked_Command}" HorizontalAlignment="Left" Margin="26,283,0,0" VerticalAlignment="Top" Width="184" Height="35"/>
         <Button Content="Copy Access-Token to Clipboard" Command="{Binding Copy_Access_Token_to_Clipboard_Clicked_Command}" HorizontalAlignment="Left" Margin="157,347,0,0" VerticalAlignment="Top" Width="208"/>
@@ -26,9 +26,34 @@
         <Label Content="Code Verifier" HorizontalAlignment="Left" Margin="336,18,0,0" VerticalAlignment="Top" Width="92"/>
         <Button Content="Create new Code Verifier" Command ="{Binding Create_New_Codeverifier_Clicked_Command}" HorizontalAlignment="Left" Margin="457,21,0,0" VerticalAlignment="Top" Width="155"/>
         <Label Content="Refresh Token" HorizontalAlignment="Left" Margin="30,529,0,0" VerticalAlignment="Top" Width="88"/>
-        <TextBox  HorizontalAlignment="Left" Margin="132,529,0,0" Text="{Binding RefreshToken}" TextWrapping="Wrap" VerticalAlignment="Top" Width="423" Height="26"/>
+        <TextBox  HorizontalAlignment="Left" Margin="132,529,0,0" Text="{Binding RefreshToken}" TextWrapping="Wrap" VerticalAlignment="Top" Width="333" Height="26"/>
         <CheckBox Content="Include Refresh Token" IsChecked ="{Binding AddRefreshToken}"  HorizontalAlignment="Left" Margin="275,84,0,0" VerticalAlignment="Top" Width="143"/>
         <Button Content="Copy Refresh-Token to Clipboard" Command="{Binding Copy_Refresh_Token_to_Clipboard_Clicked_Command}" HorizontalAlignment="Left" Margin="157,504,0,0" VerticalAlignment="Top" Width="208"/>
+        <Button Content="Get Identity" Command="{Binding Get_Identity_Clicked_Command}"  HorizontalAlignment="Left" Margin="511,504,0,0" VerticalAlignment="Top" Width="178"/>
+        <Button Content="Get Equipment/Installations" Command="{Binding Get_Equipment_Clicked_Command}"  HorizontalAlignment="Left" Margin="511,536,0,0" VerticalAlignment="Top" Width="178"/>
+        <Button Content="Get Sensor Values" Command="{Binding Get_Features_Clicked_Command}"  HorizontalAlignment="Left" Margin="511,621,0,0" VerticalAlignment="Top" Width="178"/>
+        <TextBox HorizontalAlignment="Left" Margin="799,537,0,0" TextWrapping="Wrap" Text="{Binding InstallationId}"  VerticalAlignment="Top" Width="120"/>
+        <TextBox HorizontalAlignment="Left" Margin="799,555,0,0" TextWrapping="Wrap" Text="{Binding GatewaySerial}" VerticalAlignment="Top" Width="120"/>
+        <TextBox HorizontalAlignment="Left" Margin="799,573,0,0" TextWrapping="Wrap" Text="{Binding DeviceId}" VerticalAlignment="Top" Width="120"/>
+        <Label Content="Installation Id" HorizontalAlignment="Left" Margin="705,533,0,0" VerticalAlignment="Top"/>
+        <Label Content="Gateway Serial" HorizontalAlignment="Left" Margin="705,551,0,0" VerticalAlignment="Top"/>
+        <Label Content="Device Id" HorizontalAlignment="Left" Margin="705,569,0,0" VerticalAlignment="Top"/>
+        <TextBox HorizontalAlignment="Left" Margin="799,506,0,0" TextWrapping="Wrap" Text="{Binding Identity}"  VerticalAlignment="Top" Width="244"/>
+        <Label Content="Identity" HorizontalAlignment="Left" Margin="708,502,0,0" VerticalAlignment="Top" Width="66"/>
+        <Label Content="Kesseltemperatur" HorizontalAlignment="Left" Margin="695,644,0,0" VerticalAlignment="Top" Width="108"/>
+        <TextBox HorizontalAlignment="Left" Margin="808,648,0,0" TextWrapping="Wrap" Text="{Binding TimeTempMain}" IsReadOnly="True" VerticalAlignment="Top" Width="120"/>
+        <TextBox HorizontalAlignment="Left" Margin="949,648,0,0" TextWrapping="Wrap" Text="{Binding TemperatureMain}" IsReadOnly="True" VerticalAlignment="Top" Width="120"/>
+        <Label Content="Timestamp" HorizontalAlignment="Left" Margin="802,597,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.058,0.579"/>
+        <Label Content="Value" HorizontalAlignment="Left" Margin="949,597,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.058,0.579"/>
+        <TextBox HorizontalAlignment="Left" Margin="808,622,0,0" TextWrapping="Wrap" Text="{Binding TimeTempOutside}" IsReadOnly="True" VerticalAlignment="Top" Width="120"/>
+        <TextBox HorizontalAlignment="Left" Margin="949,623,0,0" TextWrapping="Wrap" Text="{Binding TemperatureOutside}" IsReadOnly="True" VerticalAlignment="Top" Width="120"/>
+        <Label Content="Außentemperatur" HorizontalAlignment="Left" Margin="695,617,0,0" VerticalAlignment="Top" Width="108"/>
+        <TextBox HorizontalAlignment="Left" Margin="808,704,0,0" TextWrapping="Wrap" Text="{Binding TimeTempOutlet}" IsReadOnly="True" VerticalAlignment="Top" Width="120"/>
+        <TextBox HorizontalAlignment="Left" Margin="949,704,0,0" TextWrapping="Wrap" Text="{Binding TemperatureOutlet}" IsReadOnly="True" VerticalAlignment="Top" Width="120"/>
+        <Label Content="Brauchwasser" HorizontalAlignment="Left" Margin="695,700,0,0" VerticalAlignment="Top" Width="103"/>
+        <TextBox HorizontalAlignment="Left" Margin="808,671,0,0" TextWrapping="Wrap" Text="{Binding TimeTempSupply}" IsReadOnly="True" VerticalAlignment="Top" Width="120"/>
+        <TextBox HorizontalAlignment="Left" Margin="949,671,0,0" TextWrapping="Wrap" Text="{Binding TemperatureSupply}" IsReadOnly="True" VerticalAlignment="Top" Width="120"/>
+        <Label Content="Vorlauftemperatur" HorizontalAlignment="Left" Margin="695,671,0,0" VerticalAlignment="Top" Width="108"/>
 
     </Grid>
 </Window>
