@@ -22,7 +22,8 @@ namespace RoSchmiViessmannApiTest
             Create_New_Codeverifier_Clicked_Command = new RelayCommand(CreateNewCodeVerifier);
             Get_Identity_Clicked_Command = new AsyncRelayCommand(GetIdentityResponse);
             Get_Equipment_Clicked_Command = new AsyncRelayCommand(GetEquipmentResponse);
-            Get_Features_Clicked_Command = new AsyncRelayCommand(GetFeaturesResponse);  
+            Get_Features_Clicked_Command = new AsyncRelayCommand(GetFeaturesResponse);
+            Refresh_Access_Token_Clicked_Command = new AsyncRelayCommand(RefreshAccessToken);
         }
 
         public IAsyncRelayCommand Get_Authorization_Clicked_Command { get; }
@@ -31,7 +32,9 @@ namespace RoSchmiViessmannApiTest
         public IAsyncRelayCommand Get_Equipment_Clicked_Command { get; }
 
         public IAsyncRelayCommand Get_Features_Clicked_Command { get; }
-        
+
+        public IAsyncRelayCommand Refresh_Access_Token_Clicked_Command { get; }
+
 
         public ICommand Copy_Url_to_Clipboard_Clicked_Command { set; get; }
         public ICommand Copy_Access_Token_to_Clipboard_Clicked_Command { set; get; }
@@ -89,11 +92,13 @@ namespace RoSchmiViessmannApiTest
             // Create Content-String for POST request
             string sendContentString = $"client_id={Uri.EscapeDataString(Client_id)}" +
                 $"&redirect_uri={redirect_uri}" +
-                $"&grant_type={Uri.EscapeDataString(grant_type)}" +
+                $"&grant_type={Uri.EscapeDataString(grant_type_authorization)}" +
                 $"&code_verifier={Uri.EscapeDataString(Code_verifier)}" +
                 $"&code={Uri.EscapeDataString(AuthenticationCode)}";
 
-            string encodedUrl = $"{tokenBaseUri}";
+           // string encodedUrl = $"{tokenBaseUri}";
+
+
             HttpResponseMessage? responseMessage = null;
             string? responseContent = null;
 
@@ -252,7 +257,9 @@ namespace RoSchmiViessmannApiTest
             HttpResponseMessage? responseMessage = null;
             string? responseContent = null;
 
-            Features? features = new Features();
+            //Features? features = new Features();
+
+            Features? features = null;
 
             using (var client = new HttpClient())
             {
@@ -274,23 +281,30 @@ namespace RoSchmiViessmannApiTest
 
                     DateTime localDateTime = DateTime.MinValue;
 
-                    if (features != null) 
-                    { 
-                        localDateTime = ((DateTime)features.data[3].timestamp).ToLocalTime();                   
-                        TimeTempMain = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
-                        TemperatureMain = features.data[3].properties.value.value.ToString();
+                    try
+                    {
+                        if ((features != null) && (features.data != null))
+                        {
+                            localDateTime = ((DateTime)features.data[3].timestamp).ToLocalTime();
+                            TimeTempMain = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
+                            TemperatureMain = features.data[3].properties.value.value.ToString();
 
-                        localDateTime = ((DateTime)features.data[95].timestamp).ToLocalTime();
-                        TimeTempOutside = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
-                        TemperatureOutside = features.data[95].properties.value.value.ToString();
+                            localDateTime = ((DateTime)features.data[95].timestamp).ToLocalTime();
+                            TimeTempOutside = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
+                            TemperatureOutside = features.data[95].properties.value.value.ToString();
 
-                        localDateTime = ((DateTime)features.data[91].timestamp).ToLocalTime();
-                        TimeTempOutlet = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
-                        TemperatureOutlet = features.data[91].properties.value.value.ToString();
+                            localDateTime = ((DateTime)features.data[91].timestamp).ToLocalTime();
+                            TimeTempOutlet = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
+                            TemperatureOutlet = features.data[91].properties.value.value.ToString();
 
-                        localDateTime = ((DateTime)features.data[77].timestamp).ToLocalTime();
-                        TimeTempSupply = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
-                        TemperatureSupply = features.data[77].properties.value.value.ToString();
+                            localDateTime = ((DateTime)features.data[77].timestamp).ToLocalTime();
+                            TimeTempSupply = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
+                            TemperatureSupply = features.data[77].properties.value.value.ToString();
+                        }
+                    }
+                    catch (Exception e1)
+                    {
+                        string? theExceptionMessage = e1.Message;
                     }
                 }
                 catch (Exception e)
@@ -304,8 +318,52 @@ namespace RoSchmiViessmannApiTest
         #endregion
 
 
-        
- 
+        #region Task<string?> GetRefreshAccessToken()
+        private async Task<string?> RefreshAccessToken()
+        {
+            // Create Content-String for POST request
+            string sendContentString = $"grant_type={Uri.EscapeDataString(grant_type_refresh)}" +
+                $"&client_id={Uri.EscapeDataString(Client_id)}" +
+                $"&refresh_token={Uri.EscapeDataString(refreshToken)}";
+
+
+            ViApiToken? viApiToken;
+            HttpResponseMessage? responseMessage = null;
+            string? responseContent = null;
+            using (var client = new HttpClient())
+            {
+                StringContent content = new StringContent(sendContentString, Encoding.UTF8, "application/x-www-form-urlencoded");
+
+                try
+                {
+                    var requestMessage = new HttpRequestMessage
+                    {
+                        Method = HttpMethod.Post,
+                        Headers = { { "Host", "iam.viessmann.com"
+                            } },
+                        RequestUri = new Uri(tokenBaseUri),
+                        Content = content
+                    };
+
+                    responseMessage = await client.SendAsync(requestMessage);
+                    responseContent = await responseMessage.Content.ReadAsStringAsync();
+
+                    viApiToken = JsonSerializer.Deserialize<ViApiToken>(responseContent);
+
+                    AccessToken = viApiToken != null ? viApiToken.access_token : string.Empty;
+
+                    RefreshToken = viApiToken != null ? viApiToken.refresh_token != null ? viApiToken.refresh_token : string.Empty : string.Empty;         
+                }
+                catch (Exception e)
+                {
+                    string? theExceptionMessage = e.Message;
+                };
+            }
+            return responseContent;
+        }
+        #endregion
+
+
         private static string randomCodeVerifier(int length)
         {
             // This is a quick and dirty function, not certain that it will always work properly
@@ -391,7 +449,8 @@ namespace RoSchmiViessmannApiTest
         private const string scope_IoT_User_offline_access = "IoT User offline_access";
         private const string response_type = "code";
         private const string code_challenge_method = "S256";
-        private const string grant_type = "authorization_code";
+        private const string grant_type_authorization = "authorization_code";
+        private const string grant_type_refresh = "refresh_token";
 
         private string? requestResult;
         private string code_challenge = "";

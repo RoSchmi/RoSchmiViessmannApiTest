@@ -54,6 +54,7 @@
         <TextBox HorizontalAlignment="Left" Margin="808,671,0,0" TextWrapping="Wrap" Text="{Binding TimeTempSupply}" IsReadOnly="True" VerticalAlignment="Top" Width="120"/>
         <TextBox HorizontalAlignment="Left" Margin="949,671,0,0" TextWrapping="Wrap" Text="{Binding TemperatureSupply}" IsReadOnly="True" VerticalAlignment="Top" Width="120"/>
         <Label Content="Vorlauftemperatur" HorizontalAlignment="Left" Margin="695,671,0,0" VerticalAlignment="Top" Width="108"/>
+        <Button Content="Refresh Access-Token" Command="{Binding Refresh_Access_Token_Clicked_Command}" HorizontalAlignment="Left" Margin="157,571,0,0" VerticalAlignment="Top" Width="208"/>
 
     </Grid>
 </Window>
