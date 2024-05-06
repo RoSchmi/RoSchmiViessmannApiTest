@@ -2,6 +2,8 @@ RoSchmiViessmannApiTest
 
 This is a 'quick and dirty' tool I implemented to learn how to use the Viessmann-Api to create Access Tokens and get Sensor-Values using the Viessmann Cloud API.
 
+![gallery](https://github.com/RoSchmi/RoSchmiViessmannApiTest/blob/master/Pictures/Viesseman-Api Client.png)
+
 How to use:
 1) Enter the client_id in the text box in the left upper corner
 2) Click the "Get Autorization Request Url" Button (marking the CheckBox will also retrieve a Refresh-Token)
