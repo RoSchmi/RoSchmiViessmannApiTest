@@ -77,8 +77,16 @@ namespace RoSchmiViessmannApiTest
             using (var client = new HttpClient())
             {
                 RequestUrl = $"{authorizeBaseUri}?{queryString}";
-                response = await client.GetAsync(RequestUrl);
-                content = await response.Content.ReadAsStringAsync();
+                try 
+                { 
+                    response = await client.GetAsync(RequestUrl);
+                    content = await response.Content.ReadAsStringAsync();
+                }
+                catch
+                {
+                    content = string.Empty;
+                }
+                
             }
 
             return content;
@@ -325,7 +333,6 @@ namespace RoSchmiViessmannApiTest
             string sendContentString = $"grant_type={Uri.EscapeDataString(grant_type_refresh)}" +
                 $"&client_id={Uri.EscapeDataString(Client_id)}" +
                 $"&refresh_token={Uri.EscapeDataString(refreshToken)}";
-
 
             ViApiToken? viApiToken;
             HttpResponseMessage? responseMessage = null;
