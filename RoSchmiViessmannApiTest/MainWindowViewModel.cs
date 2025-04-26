@@ -293,21 +293,21 @@ namespace RoSchmiViessmannApiTest
                     {
                         if ((features != null) && (features.data != null))
                         {
-                            localDateTime = ((DateTime)features.data[3].timestamp).ToLocalTime();
+                            localDateTime = ((DateTime)features.data[2].timestamp).ToLocalTime();
                             TimeTempMain = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
-                            TemperatureMain = features.data[3].properties.value.value.ToString();
+                            TemperatureMain = features.data[2].properties.value.value.ToString();
 
-                            localDateTime = ((DateTime)features.data[95].timestamp).ToLocalTime();
+                            localDateTime = ((DateTime)features.data[94].timestamp).ToLocalTime();
                             TimeTempOutside = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
-                            TemperatureOutside = features.data[95].properties.value.value.ToString();
+                            TemperatureOutside = features.data[94].properties.value.value.ToString();
 
                             localDateTime = ((DateTime)features.data[91].timestamp).ToLocalTime();
                             TimeTempOutlet = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
                             TemperatureOutlet = features.data[91].properties.value.value.ToString();
 
-                            localDateTime = ((DateTime)features.data[77].timestamp).ToLocalTime();
+                            localDateTime = ((DateTime)features.data[76].timestamp).ToLocalTime();
                             TimeTempSupply = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
-                            TemperatureSupply = features.data[77].properties.value.value.ToString();
+                            TemperatureSupply = features.data[76].properties.value.value.ToString();
                         }
                     }
                     catch (Exception e1)
@@ -449,7 +449,8 @@ namespace RoSchmiViessmannApiTest
 
         private const string userBaseUri = "https://api.viessmann.com/users/v1/users/me";
 
-        private const string iotBaseUri = "https://api.viessmann.com/iot/v1/";
+        //private const string iotBaseUri = "https://api.viessmann.com/iot/v1/";
+        private const string iotBaseUri = "https://api.viessmann.com/iot/v2/";
 
         private const string redirect_uri = "http://localhost:4200/";
         private const string scope_IoT_User = "IoT User";
