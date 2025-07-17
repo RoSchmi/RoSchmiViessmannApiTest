@@ -121,7 +121,7 @@ namespace RoSchmiViessmannApiTest
                     var requestMessage = new HttpRequestMessage
                     {
                         Method = HttpMethod.Post,
-                        Headers = { { "Host", "iam.viessmann.com"
+                        Headers = { { "Host", iamHostName
                             } },
                         RequestUri = new Uri(tokenBaseUri),
                         Content = content
@@ -346,7 +346,7 @@ namespace RoSchmiViessmannApiTest
                     var requestMessage = new HttpRequestMessage
                     {
                         Method = HttpMethod.Post,
-                        Headers = { { "Host", "iam.viessmann.com"
+                        Headers = { { "Host", iamHostName
                             } },
                         RequestUri = new Uri(tokenBaseUri),
                         Content = content
@@ -444,13 +444,23 @@ namespace RoSchmiViessmannApiTest
         [ObservableProperty]
         private string temperatureSupply = "";
 
-        private const string authorizeBaseUri = "https://iam.viessmann.com/idp/v3/authorize";
-        private const string tokenBaseUri = "https://iam.viessmann.com/idp/v3/token";
+        
 
-        private const string userBaseUri = "https://api.viessmann.com/users/v1/users/me";
+        //old: private const string authorizeBaseUri = "https://iam.viessmann.com/idp/v3/authorize";
+        private const string authorizeBaseUri = "https://iam.viessmann-climatesolutions.com/idp/v3/authorize";
+        private const string iamHostName = "iam.viessmann-climatesolutions.com";
+
+
+        //old: private const string tokenBaseUri = "https://iam.viessmann.com/idp/v3/token";
+        private const string tokenBaseUri = "https://iam.viessmann-climatesolutions.com/idp/v3/token";
+
+
+        //old: private const string userBaseUri = "https://api.viessmann.com/users/v1/users/me";
+        private const string userBaseUri = "https://api.viessmann-climatesolutions.com/users/v1/users/me";
 
         //private const string iotBaseUri = "https://api.viessmann.com/iot/v1/";
-        private const string iotBaseUri = "https://api.viessmann.com/iot/v2/";
+        //private const string iotBaseUri = "https://api.viessmann.com/iot/v2/";
+        private const string iotBaseUri = "https://api.viessmann-climatesolutions.com/iot/v2/";
 
         private const string redirect_uri = "http://localhost:4200/";
         private const string scope_IoT_User = "IoT User";
