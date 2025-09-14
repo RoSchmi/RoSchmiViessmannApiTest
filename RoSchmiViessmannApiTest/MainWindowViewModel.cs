@@ -293,21 +293,24 @@ namespace RoSchmiViessmannApiTest
                     {
                         if ((features != null) && (features.data != null))
                         {
-                            localDateTime = ((DateTime)features.data[2].timestamp).ToLocalTime();
+                            //Vorlauftemperatur
+                            localDateTime = ((DateTime)features.data[3].timestamp).ToLocalTime();
                             TimeTempMain = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
-                            TemperatureMain = features.data[2].properties.value.value.ToString();
+                            TemperatureMain = features.data[3].properties.value.value.ToString();
+
+                            //Außentemperatur
+                            localDateTime = ((DateTime)features.data[97].timestamp).ToLocalTime();
+                            TimeTempOutside = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
+                            TemperatureOutside = features.data[97].properties.value.value.ToString();
+
+                            //Warmwassertemperatur
+                            localDateTime = ((DateTime)features.data[92].timestamp).ToLocalTime();
+                            TimeTempOutlet = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
+                            TemperatureOutlet = features.data[92].properties.value.value.ToString();
 
                             localDateTime = ((DateTime)features.data[94].timestamp).ToLocalTime();
-                            TimeTempOutside = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
-                            TemperatureOutside = features.data[94].properties.value.value.ToString();
-
-                            localDateTime = ((DateTime)features.data[91].timestamp).ToLocalTime();
-                            TimeTempOutlet = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
-                            TemperatureOutlet = features.data[91].properties.value.value.ToString();
-
-                            localDateTime = ((DateTime)features.data[76].timestamp).ToLocalTime();
                             TimeTempSupply = $"{localDateTime.Hour.ToString("00")}:{localDateTime.Minute.ToString("00")}.{localDateTime.Second.ToString("00")}";
-                            TemperatureSupply = features.data[76].properties.value.value.ToString();
+                            TemperatureSupply = features.data[94].properties.value.value.ToString();
                         }
                     }
                     catch (Exception e1)
